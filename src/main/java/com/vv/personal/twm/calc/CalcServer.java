@@ -21,42 +21,45 @@ import java.net.UnknownHostException;
 
 import static com.vv.personal.twm.calc.constants.Constants.*;
 
+/**
+ * @author Vivek
+ * @since 03/02/21
+ */
 @EnableEurekaClient
 @EnableFeignClients
 @SpringBootApplication
 public class CalcServer {
-	private static final Logger LOGGER = LoggerFactory.getLogger(CalcServer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CalcServer.class);
+    @Autowired
+    private Environment environment;
 
-	public static void main(String[] args) {
-		SpringApplication.run(CalcServer.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(CalcServer.class, args);
+    }
 
-	@Autowired
-	private Environment environment;
+    @Bean
+    ProtobufHttpMessageConverter protobufHttpMessageConverter() {
+        return new ProtobufHttpMessageConverter();
+    }
 
-	@Bean
-	ProtobufHttpMessageConverter protobufHttpMessageConverter() {
-		return new ProtobufHttpMessageConverter();
-	}
+    @Bean
+    public Docket api() {
+        return new Docket(DocumentationType.SWAGGER_2)
+                .select()
+                .apis(RequestHandlerSelectors.basePackage("com.vv.personal.twm.calc"))
+                .build();
+    }
 
-	@Bean
-	public Docket api() {
-		return new Docket(DocumentationType.SWAGGER_2)
-				.select()
-				.apis(RequestHandlerSelectors.basePackage("com.vv.personal.twm.calc"))
-				.build();
-	}
-
-	@EventListener(ApplicationReadyEvent.class)
-	public void firedUpAllCylinders() {
-		String host = LOCALHOST;
-		try {
-			host = InetAddress.getLocalHost().getHostAddress();
-		} catch (UnknownHostException e) {
-			LOGGER.error("Failed to obtain ip address. ", e);
-		}
-		String port = environment.getProperty(LOCAL_SPRING_PORT);
-		LOGGER.info("'{}' activation is complete! Exact url: {}", environment.getProperty("spring.application.name").toUpperCase(),
-				String.format(SWAGGER_UI_URL, host, port));
-	}
+    @EventListener(ApplicationReadyEvent.class)
+    public void firedUpAllCylinders() {
+        String host = LOCALHOST;
+        try {
+            host = InetAddress.getLocalHost().getHostAddress();
+        } catch (UnknownHostException e) {
+            LOGGER.error("Failed to obtain ip address. ", e);
+        }
+        String port = environment.getProperty(LOCAL_SPRING_PORT);
+        LOGGER.info("'{}' activation is complete! Exact url: {}", environment.getProperty("spring.application.name").toUpperCase(),
+                String.format(SWAGGER_UI_URL, host, port));
+    }
 }
