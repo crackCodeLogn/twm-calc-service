@@ -1,0 +1,20 @@
+spring:
+  application:
+    name: twm-calc-service
+
+server:
+  port: ${EUREKA_REGISTRATION_PORT:0}
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: ${EUREKA_URI:http://localhost:2012/eureka}
+  instance:
+    preferIpAddress: true
+
+feign:
+  client:
+    config:
+      default:
+        connectTimeout: 10000 #milliseconds
+        readTimeout: 10000
