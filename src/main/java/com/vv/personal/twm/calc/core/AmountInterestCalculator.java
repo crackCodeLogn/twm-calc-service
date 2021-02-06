@@ -11,6 +11,8 @@ import org.slf4j.LoggerFactory;
 public class AmountInterestCalculator {
     private static final Logger LOGGER = LoggerFactory.getLogger(AmountInterestCalculator.class);
 
+
+    //MONTH-DRIVEN CALC
     public static FixedDepositProto.FixedDeposit calcAmountAndInterest(double principal, double rateOfInterest, int months, int days) {
         double amount, interest;
         double effectiveMonths = months + (days / 30.0); //division by 30.0 might be flaky, but won't have that much impact
@@ -33,6 +35,26 @@ public class AmountInterestCalculator {
         if (monthsTimePeriod == 0 || compoundingFactor == 0) return 0.0;
         LOGGER.info("Registered request for calculating amount for {} at {}% for {} months at compounding factor {}", principal, rateOfInterest, monthsTimePeriod, compoundingFactor);
         double amount = principal * Math.pow(1 + rateOfInterest / (compoundingFactor * 100.0), compoundingFactor * (monthsTimePeriod / 12.0));
+        LOGGER.info("Subsequent amount calc: {}", amount);
+        return amount;
+    }
+
+    //DAYS-DRIVEN CALC
+    public static FixedDepositProto.FixedDeposit calcAmountAndInterest(double principal, double rateOfInterest, long days) {
+        double amount, interest;
+        amount = calcAmount(principal, rateOfInterest, days, 4);
+        interest = amount - principal;
+
+        FixedDepositProto.FixedDeposit.Builder fdBuilder = FixedDepositProto.FixedDeposit.newBuilder();
+        fdBuilder.setExpectedInterest(interest);
+        fdBuilder.setExpectedAmount(amount);
+        return fdBuilder.build();
+    }
+
+    private static double calcAmount(double principal, double rateOfInterest, long days, int compoundingFactor) {
+        if (days == 0 || compoundingFactor == 0) return 0.0;
+        LOGGER.info("Registered request for calculating amount for {} at {}% for {} days at compounding factor {}", principal, rateOfInterest, days, compoundingFactor);
+        double amount = principal * Math.pow(1 + rateOfInterest / (compoundingFactor * 100.0), compoundingFactor * (days / 365.0));
         LOGGER.info("Subsequent amount calc: {}", amount);
         return amount;
     }

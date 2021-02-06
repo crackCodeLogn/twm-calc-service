@@ -1,5 +1,6 @@
 package com.vv.personal.twm.calc.controller.bank;
 
+import com.vv.personal.twm.artifactory.generated.dates.DateRangeProto;
 import com.vv.personal.twm.artifactory.generated.deposit.FixedDepositProto;
 import com.vv.personal.twm.calc.controller.dates.DateDataController;
 import com.vv.personal.twm.calc.core.AmountInterestCalculator;
@@ -53,5 +54,43 @@ public class BankController {
         String endDate = DaysCalculator.calcEndDate(startDate, months, days);
         LOGGER.info("Computed end-date: {}", endDate);
         return endDate;
+    }
+
+    @GetMapping("/fd/amount-interest/annual")
+    @ApiOperation(value = "calc annual FD amount and interest", hidden = true)
+    public FixedDepositProto.FixedDepositList calcAnnualAmountAndInterest(@RequestParam double depositAmount,
+                                                                          @RequestParam double rateOfInterest,
+                                                                          @RequestParam String startDate,
+                                                                          @RequestParam String endDate) {
+        LOGGER.info("Will compute annual amount and interest for FD with principal: {}, ROI: {}%, start-date: {}, end-date: {}", depositAmount, rateOfInterest, startDate, endDate);
+        DateRangeProto.DateRangeList dateRangeList = dateDataController.computeDateRanges(startDate, endDate);
+
+        FixedDepositProto.FixedDepositList.Builder annualBreakdownListBuilder = FixedDepositProto.FixedDepositList.newBuilder();
+        double currentPrincipal = depositAmount;
+        for (DateRangeProto.DateRange dateRange : dateRangeList.getDateRangesList()) {
+            FixedDepositProto.FixedDeposit annualBreakdown = AmountInterestCalculator.calcAmountAndInterest(currentPrincipal, rateOfInterest, dateRange.getDaysInBetween());
+            FixedDepositProto.FixedDeposit.Builder builder = FixedDepositProto.FixedDeposit.newBuilder();
+            builder.mergeFrom(annualBreakdown);
+            builder.setStartDate(dateRange.getStartDate());
+            builder.setEndDate(dateRange.getEndDate());
+            builder.setCalculatedDays((int) dateRange.getDaysInBetween()); //TODO -- later update the FixedDeposit proto's calculatedDays to int64
+            annualBreakdownListBuilder.addFixedDeposits(builder.build());
+
+            currentPrincipal = annualBreakdown.getExpectedAmount();
+        }
+        FixedDepositProto.FixedDepositList annualBreakdownList = annualBreakdownListBuilder.build();
+
+        LOGGER.info("Computed {} breakdowns. Final amount: {} and interest: {}", annualBreakdownList.getFixedDepositsCount(),
+                annualBreakdownListBuilder.getFixedDeposits(annualBreakdownList.getFixedDepositsCount() - 1).getExpectedAmount(),
+                annualBreakdownList.getFixedDepositsList().stream().mapToDouble(FixedDepositProto.FixedDeposit::getExpectedInterest).sum());
+        return annualBreakdownList;
+    }
+
+    @GetMapping("/manual/fd/amount-interest/annual")
+    public String calcAnnualAmountAndInterestManually(@RequestParam double depositAmount,
+                                                      @RequestParam double rateOfInterest,
+                                                      @RequestParam String startDate,
+                                                      @RequestParam String endDate) {
+        return calcAnnualAmountAndInterest(depositAmount, rateOfInterest, startDate, endDate).toString();
     }
 }
