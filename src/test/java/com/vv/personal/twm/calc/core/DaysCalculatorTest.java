@@ -5,6 +5,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 import static com.vv.personal.twm.calc.core.DaysCalculator.calcEndDate;
+import static com.vv.personal.twm.calc.core.DaysCalculator.numberOfDaysInBetween;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -24,5 +25,14 @@ public class DaysCalculatorTest {
 
         endDate = calcEndDate("20210101", 12, 20);
         assertEquals("20220121", endDate);
+    }
+
+    @Test
+    public void testNumberOfDaysInBetween() {
+        long numberOfDaysInBetween = numberOfDaysInBetween("20210401", "20220331");
+        assertEquals(364, numberOfDaysInBetween);
+
+        numberOfDaysInBetween = numberOfDaysInBetween("20210401", "20210402");
+        assertEquals(1, numberOfDaysInBetween);
     }
 }
