@@ -12,8 +12,8 @@ import static com.vv.personal.twm.calc.constants.Constants.DTF_YYYYMMDD;
  * @author Vivek
  * @since 06/02/21
  */
-public class LocalDataUtil {
-    private static final Logger LOGGER = LoggerFactory.getLogger(LocalDataUtil.class);
+public class LocalDateUtil {
+    private static final Logger LOGGER = LoggerFactory.getLogger(LocalDateUtil.class);
 
     public static LocalDate generateLocalDateObject(String date) {
         try {

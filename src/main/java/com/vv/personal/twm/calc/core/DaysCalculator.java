@@ -1,6 +1,6 @@
 package com.vv.personal.twm.calc.core;
 
-import com.vv.personal.twm.calc.util.LocalDataUtil;
+import com.vv.personal.twm.calc.util.LocalDateUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,7 +17,7 @@ public class DaysCalculator {
     private static final Logger LOGGER = LoggerFactory.getLogger(DaysCalculator.class);
 
     public static String calcEndDate(String startDate, int months, int extendedDays) {
-        LocalDate date = LocalDataUtil.generateLocalDateObject(startDate);
+        LocalDate date = LocalDateUtil.generateLocalDateObject(startDate);
         if (date == null) return EMPTY_STR;
 
         date = date.plusMonths(months);
@@ -26,9 +26,9 @@ public class DaysCalculator {
     }
 
     public static Long numberOfDaysInBetween(String startDate, String endDate) {
-        LocalDate startDateObject = LocalDataUtil.generateLocalDateObject(startDate);
+        LocalDate startDateObject = LocalDateUtil.generateLocalDateObject(startDate);
         if (startDateObject == null) return DEFAULT_LONG;
-        LocalDate endDateObject = LocalDataUtil.generateLocalDateObject(endDate);
+        LocalDate endDateObject = LocalDateUtil.generateLocalDateObject(endDate);
         if (endDateObject == null) return DEFAULT_LONG;
 
         return DAYS.between(startDateObject, endDateObject);
