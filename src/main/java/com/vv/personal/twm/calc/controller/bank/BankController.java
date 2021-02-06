@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import static com.vv.personal.twm.calc.util.LocalDateUtil.generateFinancialYearStartDate;
+
 /**
  * @author Vivek
  * @since 03/02/21
@@ -58,31 +60,33 @@ public class BankController {
 
     @GetMapping("/fd/amount-interest/annual")
     @ApiOperation(value = "calc annual FD amount and interest", hidden = true)
-    public FixedDepositProto.FixedDepositList calcAnnualAmountAndInterest(@RequestParam double depositAmount,
-                                                                          @RequestParam double rateOfInterest,
-                                                                          @RequestParam String startDate,
-                                                                          @RequestParam String endDate) {
+    public FixedDepositProto.AnnualBreakdownList calcAnnualAmountAndInterest(@RequestParam double depositAmount,
+                                                                             @RequestParam double rateOfInterest,
+                                                                             @RequestParam String startDate,
+                                                                             @RequestParam String endDate) {
         LOGGER.info("Will compute annual amount and interest for FD with principal: {}, ROI: {}%, start-date: {}, end-date: {}", depositAmount, rateOfInterest, startDate, endDate);
         DateRangeProto.DateRangeList dateRangeList = dateDataController.computeDateRanges(startDate, endDate);
 
-        FixedDepositProto.FixedDepositList.Builder annualBreakdownListBuilder = FixedDepositProto.FixedDepositList.newBuilder();
+        FixedDepositProto.AnnualBreakdownList.Builder annualBreakdownListBuilder = FixedDepositProto.AnnualBreakdownList.newBuilder();
         double currentPrincipal = depositAmount;
         for (DateRangeProto.DateRange dateRange : dateRangeList.getDateRangesList()) {
-            FixedDepositProto.FixedDeposit annualBreakdown = AmountInterestCalculator.calcAmountAndInterest(currentPrincipal, rateOfInterest, dateRange.getDaysInBetween());
-            FixedDepositProto.FixedDeposit.Builder builder = FixedDepositProto.FixedDeposit.newBuilder();
-            builder.mergeFrom(annualBreakdown);
+            FixedDepositProto.FixedDeposit computedDixedDepositDetail = AmountInterestCalculator.calcAmountAndInterest(currentPrincipal, rateOfInterest, dateRange.getDaysInBetween());
+            FixedDepositProto.AnnualBreakdown.Builder builder = FixedDepositProto.AnnualBreakdown.newBuilder();
+            builder.setExpectedInterestGained(computedDixedDepositDetail.getExpectedInterest());
+            builder.setExpectedAmountAccumulated(computedDixedDepositDetail.getExpectedAmount());
             builder.setStartDate(dateRange.getStartDate());
             builder.setEndDate(dateRange.getEndDate());
-            builder.setCalculatedDays((int) dateRange.getDaysInBetween()); //TODO -- later update the FixedDeposit proto's calculatedDays to int64
-            annualBreakdownListBuilder.addFixedDeposits(builder.build());
+            builder.setDaysInBetween(dateRange.getDaysInBetween());
+            builder.setFinancialYear(generateFinancialYearStartDate(dateRange.getStartDate()));
+            annualBreakdownListBuilder.addAnnualBreakdown(builder.build());
 
-            currentPrincipal = annualBreakdown.getExpectedAmount();
+            currentPrincipal = computedDixedDepositDetail.getExpectedAmount();
         }
-        FixedDepositProto.FixedDepositList annualBreakdownList = annualBreakdownListBuilder.build();
+        FixedDepositProto.AnnualBreakdownList annualBreakdownList = annualBreakdownListBuilder.build();
 
-        LOGGER.info("Computed {} breakdowns. Final amount: {} and interest: {}", annualBreakdownList.getFixedDepositsCount(),
-                annualBreakdownListBuilder.getFixedDeposits(annualBreakdownList.getFixedDepositsCount() - 1).getExpectedAmount(),
-                annualBreakdownList.getFixedDepositsList().stream().mapToDouble(FixedDepositProto.FixedDeposit::getExpectedInterest).sum());
+        LOGGER.info("Computed {} breakdowns. Final amount: {} and interest: {}", annualBreakdownList.getAnnualBreakdownCount(),
+                annualBreakdownListBuilder.getAnnualBreakdown(annualBreakdownList.getAnnualBreakdownCount() - 1).getExpectedAmountAccumulated(),
+                annualBreakdownList.getAnnualBreakdownList().stream().mapToDouble(FixedDepositProto.AnnualBreakdown::getExpectedInterestGained).sum());
         return annualBreakdownList;
     }
 

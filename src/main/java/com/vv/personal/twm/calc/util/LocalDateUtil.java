@@ -6,7 +6,7 @@ import org.slf4j.LoggerFactory;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 
-import static com.vv.personal.twm.calc.constants.Constants.DTF_YYYYMMDD;
+import static com.vv.personal.twm.calc.constants.Constants.*;
 
 /**
  * @author Vivek
@@ -22,5 +22,37 @@ public class LocalDateUtil {
             LOGGER.error("Unable to parse input startDate '{}'. ", date, e);
         }
         return null;
+    }
+
+    public static Integer generateIntegralDate(LocalDate localDate) {
+        return generateIntegralDate(localDate.getDayOfMonth(), localDate.getMonthValue(), localDate.getYear());
+    }
+
+    public static Integer generateIntegralDate(int day, int month, int year) {
+        return Integer.valueOf(String.format("%04d%02d%02d", year, month, day));
+    }
+
+    public static String generateFinancialYearStartDate(String date) {
+        return String.valueOf(generateFinancialYearStartDate(generateLocalDateObject(date)));
+    }
+
+    public static Integer generateFinancialYearStartDate(LocalDate dateObject) {
+        if (dateObject == null) return DEFAULT_INT_ZERO;
+
+        int currentYear = dateObject.getYear();
+        if (dateObject.getMonthValue() <= 3) currentYear--;
+        return generateIntegralDate(FY_ROLL_DATE_DAY, FY_ROLL_DATE_MONTH, currentYear);
+    }
+
+    public static String generateFinancialYearEndDate(String date) {
+        return String.valueOf(generateFinancialYearEndDate(generateLocalDateObject(date)));
+    }
+
+    public static Integer generateFinancialYearEndDate(LocalDate dateObject) {
+        if (dateObject == null) return DEFAULT_INT_ZERO;
+
+        int nextYear = dateObject.getYear() + 1;
+        if (dateObject.getMonthValue() <= 3) nextYear--;
+        return generateIntegralDate(FY_ROLL_DATE_DAY, FY_ROLL_DATE_MONTH, nextYear);
     }
 }

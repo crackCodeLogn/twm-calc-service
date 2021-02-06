@@ -1,18 +1,19 @@
 package com.vv.personal.twm.calc.core;
 
 import com.vv.personal.twm.artifactory.generated.dates.DateRangeProto;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.LocalDate;
 
-import static com.vv.personal.twm.calc.util.LocalDateUtil.generateLocalDateObject;
+import static com.vv.personal.twm.calc.util.LocalDateUtil.*;
 
 /**
  * @author Vivek
  * @since 06/02/21
  */
 public class DateRangeCalculator {
-    public static final Integer FY_ROLL_DATE_MONTH = 4;
-    public static final Integer FY_ROLL_DATE_DAY = 1;
+    private static final Logger LOGGER = LoggerFactory.getLogger(DateRangeCalculator.class);
 
     public static DateRangeProto.DateRangeList computeDateRanges(String startDateStr, String endDateStr) {
         DateRangeProto.DateRangeList.Builder dateRanges = DateRangeProto.DateRangeList.newBuilder();
@@ -21,6 +22,10 @@ public class DateRangeCalculator {
 
         while (true) {
             startDate = generateLocalDateObject(startDateStr);
+            if (startDate == null) {
+                LOGGER.error("Got null start date for {}!", startDateStr);
+                return null;
+            }
             Integer fyEndDateInt = generateFinancialYearEndDate(startDate);
             if (endDateInt < fyEndDateInt) {
                 return dateRanges.addDateRanges(generateDateRange(startDateStr, endDateStr)).build();
@@ -36,20 +41,6 @@ public class DateRangeCalculator {
                 .setEndDate(endDate)
                 .setDaysInBetween(DaysCalculator.numberOfDaysInBetween(startDate, endDate))
                 .build();
-    }
-
-    public static Integer generateIntegralDate(LocalDate localDate) {
-        return generateIntegralDate(localDate.getDayOfMonth(), localDate.getMonthValue(), localDate.getYear());
-    }
-
-    public static Integer generateIntegralDate(int day, int month, int year) {
-        return Integer.valueOf(String.format("%04d%02d%02d", year, month, day));
-    }
-
-    public static Integer generateFinancialYearEndDate(LocalDate dateObject) {
-        int nextYear = dateObject.getYear() + 1;
-        if (dateObject.getMonthValue() <= 3) nextYear--;
-        return generateIntegralDate(FY_ROLL_DATE_DAY, FY_ROLL_DATE_MONTH, nextYear);
     }
 
 }

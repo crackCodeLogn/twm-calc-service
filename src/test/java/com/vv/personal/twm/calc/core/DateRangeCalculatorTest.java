@@ -1,14 +1,11 @@
 package com.vv.personal.twm.calc.core;
 
 import com.vv.personal.twm.artifactory.generated.dates.DateRangeProto;
-import com.vv.personal.twm.calc.util.LocalDateUtil;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-import java.time.LocalDate;
-
-import static com.vv.personal.twm.calc.core.DateRangeCalculator.*;
+import static com.vv.personal.twm.calc.core.DateRangeCalculator.computeDateRanges;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -17,31 +14,6 @@ import static org.junit.Assert.assertEquals;
  */
 @RunWith(JUnit4.class)
 public class DateRangeCalculatorTest {
-
-    @Test
-    public void testGenerateIntegralDate() {
-        int date = generateIntegralDate(6, 2, 2021);
-        assertEquals(20210206, date);
-    }
-
-    @Test
-    public void testGenerateFinancialYearEndDate() {
-        LocalDate localDate = LocalDateUtil.generateLocalDateObject("20210206");
-        int fyEnd = generateFinancialYearEndDate(localDate);
-        assertEquals(20210401, fyEnd);
-
-        localDate = LocalDateUtil.generateLocalDateObject("20210331");
-        fyEnd = generateFinancialYearEndDate(localDate);
-        assertEquals(20210401, fyEnd);
-
-        localDate = LocalDateUtil.generateLocalDateObject("20210401");
-        fyEnd = generateFinancialYearEndDate(localDate);
-        assertEquals(20220401, fyEnd);
-
-        localDate = LocalDateUtil.generateLocalDateObject("20211231");
-        fyEnd = generateFinancialYearEndDate(localDate);
-        assertEquals(20220401, fyEnd);
-    }
 
     @Test
     public void testComputeDateRanges() {

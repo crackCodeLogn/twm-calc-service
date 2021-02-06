@@ -15,7 +15,11 @@ public class Constants {
 
     public static final double DELTA_PRECISION_6 = 1E-6;
 
-    public static final Long DEFAULT_LONG = 0L;
+    public static final Integer FY_ROLL_DATE_MONTH = 4;
+    public static final Integer FY_ROLL_DATE_DAY = 1;
+
+    public static final Integer DEFAULT_INT_ZERO = 0;
+    public static final Long DEFAULT_LONG_ZERO = 0L;
 
     //URL - FORMATTERS
     public static final String HEROKU_SWAGGER_UI_URL = "https://%s/swagger-ui/index.html";

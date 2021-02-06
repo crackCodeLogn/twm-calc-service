@@ -27,9 +27,9 @@ public class DaysCalculator {
 
     public static Long numberOfDaysInBetween(String startDate, String endDate) {
         LocalDate startDateObject = LocalDateUtil.generateLocalDateObject(startDate);
-        if (startDateObject == null) return DEFAULT_LONG;
+        if (startDateObject == null) return DEFAULT_LONG_ZERO;
         LocalDate endDateObject = LocalDateUtil.generateLocalDateObject(endDate);
-        if (endDateObject == null) return DEFAULT_LONG;
+        if (endDateObject == null) return DEFAULT_LONG_ZERO;
 
         return DAYS.between(startDateObject, endDateObject);
     }

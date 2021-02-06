@@ -39,6 +39,10 @@ public class DateDataController {
                                                           @RequestParam String endDate) {
         LOGGER.info("Will compute date range of days in between {} -> {}", startDate, endDate);
         DateRangeProto.DateRangeList dateRangeList = DateRangeCalculator.computeDateRanges(startDate, endDate);
+        if (dateRangeList == null) {
+            LOGGER.error("Date range list returned null...");
+            return DateRangeProto.DateRangeList.newBuilder().build();
+        }
         LOGGER.info("Calculated dateRangeList of entries {}", dateRangeList.getDateRangesCount());
         return dateRangeList;
     }
