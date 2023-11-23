@@ -5,7 +5,7 @@ import com.vv.personal.twm.artifactory.generated.deposit.FixedDepositProto;
 import com.vv.personal.twm.calc.controller.dates.DateDataController;
 import com.vv.personal.twm.calc.core.AmountInterestCalculator;
 import com.vv.personal.twm.calc.core.DaysCalculator;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +29,7 @@ public class BankController {
     private DateDataController dateDataController;
 
     @GetMapping("/fd/amount-interest")
-    @ApiOperation(value = "calc FD amount and interest", hidden = true)
+    @Operation(summary = "calc FD amount and interest", hidden = true)
     public FixedDepositProto.FixedDeposit calcAmountAndInterest(@RequestParam double depositAmount,
                                                                 @RequestParam double rateOfInterest,
                                                                 @RequestParam int months,
@@ -59,7 +59,7 @@ public class BankController {
     }
 
     @GetMapping("/fd/amount-interest/annual")
-    @ApiOperation(value = "calc annual FD amount and interest", hidden = true)
+    @Operation(summary = "calc annual FD amount and interest", hidden = true)
     public FixedDepositProto.AnnualBreakdownList calcAnnualAmountAndInterest(@RequestParam double depositAmount,
                                                                              @RequestParam double rateOfInterest,
                                                                              @RequestParam String startDate,
