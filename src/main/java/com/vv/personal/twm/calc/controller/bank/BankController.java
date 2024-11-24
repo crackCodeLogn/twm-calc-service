@@ -33,9 +33,17 @@ public class BankController {
     public FixedDepositProto.FixedDeposit calcAmountAndInterest(@RequestParam double depositAmount,
                                                                 @RequestParam double rateOfInterest,
                                                                 @RequestParam int months,
-                                                                @RequestParam int days) {
-        LOGGER.info("Will compute amount and interest for FD with principal: {}, ROI: {}%, months: {}, days: {}", depositAmount, rateOfInterest, months, days);
-        FixedDepositProto.FixedDeposit fixedDeposit = AmountInterestCalculator.calcAmountAndInterest(depositAmount, rateOfInterest, months, days);
+                                                                @RequestParam int days,
+                                                                @RequestParam int accountType) {
+        FixedDepositProto.AccountType accType = FixedDepositProto.AccountType.forNumber(accountType);
+        if (accType == null) {
+            LOGGER.warn("Cannot process FD compute request due to unknown account type: {}", accountType);
+            return FixedDepositProto.FixedDeposit.newBuilder().build(); // empty
+        }
+        LOGGER.info("Will compute amount and interest for FD with principal: {}, ROI: {}%, months: {}, days: {}, " +
+                "account type: {}", depositAmount, rateOfInterest, months, days, accType);
+        FixedDepositProto.FixedDeposit fixedDeposit = AmountInterestCalculator.calcAmountAndInterest(depositAmount,
+                rateOfInterest, months, days, accType);
         LOGGER.info("Computed interest: {} and final amount: {}", fixedDeposit.getExpectedInterest(), fixedDeposit.getExpectedAmount());
         return fixedDeposit;
     }
@@ -44,8 +52,9 @@ public class BankController {
     public String calcAmountAndInterestForSwagger(@RequestParam double depositAmount,
                                                   @RequestParam double rateOfInterest,
                                                   @RequestParam int months,
-                                                  @RequestParam(defaultValue = "0", required = false) int days) {
-        return calcAmountAndInterest(depositAmount, rateOfInterest, months, days).toString();
+                                                  @RequestParam(defaultValue = "0", required = false) int days,
+                                                  @RequestParam(defaultValue = "0", required = false) int accountType) {
+        return calcAmountAndInterest(depositAmount, rateOfInterest, months, days, accountType).toString();
     }
 
     @GetMapping("/fd/end-date")

@@ -13,15 +13,17 @@ public class AmountInterestCalculator {
 
 
     //MONTH-DRIVEN CALC
-    public static FixedDepositProto.FixedDeposit calcAmountAndInterest(double principal, double rateOfInterest, int months, int days) {
+    public static FixedDepositProto.FixedDeposit calcAmountAndInterest(double principal, double rateOfInterest, int months, int days, FixedDepositProto.AccountType accountType) {
         double amount, interest;
         double effectiveMonths = months + (days / 30.0); //division by 30.0 might be flaky, but won't have that much impact
 
-        if (effectiveMonths <= 6) {
-            amount = (principal * rateOfInterest * effectiveMonths) / (100.0 * 12);
+        if (effectiveMonths <= 12) { // apply simple interest calculation
+            LOGGER.info("Applying Simple Interest calculation as the effective months '{}' is <= 12", effectiveMonths);
+            amount = principal + (principal * rateOfInterest * effectiveMonths) / (100.0 * 12);
         } else {
-            //computing interest quarterly ->
-            amount = calcAmount(principal, rateOfInterest, effectiveMonths, 4);
+            int compoundingFactor = accountType == FixedDepositProto.AccountType.IND ? 4 : 1;
+            LOGGER.info("Applying Compound Interest calculation as the effective months '{}' is > 12, and compounding factor: {}", effectiveMonths, compoundingFactor);
+            amount = calcAmount(principal, rateOfInterest, effectiveMonths, compoundingFactor);
         }
         interest = amount - principal;
 
