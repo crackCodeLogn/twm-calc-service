@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
+import java.util.Objects;
 
 import static com.vv.personal.twm.calc.constants.Constants.*;
 
@@ -22,6 +23,18 @@ public class LocalDateUtil {
             LOGGER.error("Unable to parse input startDate '{}'. ", date, e);
         }
         return null;
+    }
+
+    public static LocalDate generateLocalDateObject(int date) {
+        int day = date % 100;
+        date /= 100;
+        int month = date % 100;
+        date /= 100;
+        return LocalDate.of(date, month, day);
+    }
+
+    public static Integer generateIntegralDate(String date) {
+        return generateIntegralDate(Objects.requireNonNull(generateLocalDateObject(date)));
     }
 
     public static Integer generateIntegralDate(LocalDate localDate) {

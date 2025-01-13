@@ -1,5 +1,6 @@
 package com.vv.personal.twm.calc.controller.bank;
 
+import com.vv.personal.twm.artifactory.generated.data.DataPacketProto;
 import com.vv.personal.twm.artifactory.generated.dates.DateRangeProto;
 import com.vv.personal.twm.artifactory.generated.deposit.FixedDepositProto;
 import com.vv.personal.twm.calc.controller.dates.DateDataController;
@@ -9,12 +10,13 @@ import io.swagger.v3.oas.annotations.Operation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.vv.personal.twm.calc.util.LocalDateUtil.generateFinancialYearStartDate;
+import static com.vv.personal.twm.calc.util.LocalDateUtil.generateIntegralDate;
 
 /**
  * @author Vivek
@@ -105,5 +107,38 @@ public class BankController {
                                                       @RequestParam String startDate,
                                                       @RequestParam String endDate) {
         return calcAnnualAmountAndInterest(depositAmount, rateOfInterest, startDate, endDate).toString();
+    }
+
+    @PostMapping("/fd/amount")
+    public DataPacketProto.DataPacket calcAnnualAmounts(@RequestBody FixedDepositProto.FixedDeposit fixedDeposit) {
+        Map<Integer, Double> dateAmountMap = new HashMap<>();
+        calcAmounts(fixedDeposit, dateAmountMap);
+        return DataPacketProto.DataPacket.newBuilder()
+                .putAllIntDoubleMap(dateAmountMap)
+                .build();
+    }
+
+    @PostMapping("/fd/amounts")
+    public DataPacketProto.DataPacket calcAnnualAmounts(@RequestBody FixedDepositProto.FixedDepositList fixedDepositList) {
+        Map<Integer, Double> dateAmountMap = new HashMap<>();
+        fixedDepositList.getFixedDepositList().forEach(fixedDeposit -> calcAmounts(fixedDeposit, dateAmountMap));
+        return DataPacketProto.DataPacket.newBuilder()
+                .putAllIntDoubleMap(dateAmountMap)
+                .build();
+    }
+
+    private void calcAmounts(FixedDepositProto.FixedDeposit fixedDeposit, Map<Integer, Double> dateAmountMap) {
+        int compoundingFactor = AmountInterestCalculator.getCompoundingFactor(fixedDeposit.getAccountType());
+        int startDate = generateIntegralDate(fixedDeposit.getStartDate());
+        int endDate = generateIntegralDate(fixedDeposit.getEndDate());
+
+        AmountInterestCalculator.calcAmounts(
+                fixedDeposit.getDepositAmount(),
+                fixedDeposit.getRateOfInterest(),
+                startDate,
+                endDate,
+                compoundingFactor,
+                dateAmountMap
+        );
     }
 }
