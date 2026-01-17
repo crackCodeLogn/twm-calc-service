@@ -1,4 +1,4 @@
-package com.vv.personal.twm.calc.controller.dates;
+package com.vv.personal.twm.calc.remote.controller.dates;
 
 import com.google.protobuf.AbstractMessage;
 import com.vv.personal.twm.artifactory.generated.dates.DateRangeProto;

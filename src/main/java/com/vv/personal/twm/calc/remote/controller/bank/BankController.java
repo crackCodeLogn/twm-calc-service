@@ -1,16 +1,21 @@
-package com.vv.personal.twm.calc.controller.bank;
+package com.vv.personal.twm.calc.remote.controller.bank;
 
 import com.vv.personal.twm.artifactory.generated.data.DataPacketProto;
 import com.vv.personal.twm.artifactory.generated.dates.DateRangeProto;
 import com.vv.personal.twm.artifactory.generated.deposit.FixedDepositProto;
-import com.vv.personal.twm.calc.controller.dates.DateDataController;
 import com.vv.personal.twm.calc.core.AmountInterestCalculator;
 import com.vv.personal.twm.calc.core.DaysCalculator;
+import com.vv.personal.twm.calc.remote.controller.dates.DateDataController;
 import io.swagger.v3.oas.annotations.Operation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
 import java.util.Map;
