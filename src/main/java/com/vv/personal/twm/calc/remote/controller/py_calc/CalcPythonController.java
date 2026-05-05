@@ -72,7 +72,6 @@ public class CalcPythonController {
 
         System.out.println(requestPortfolio);
         return calcPythonEngine.calcPortfolioOptimizer(requestPortfolio);
-
     }
 
     private MarketDataProto.Instrument generateImnt(String symbol, double capital,
