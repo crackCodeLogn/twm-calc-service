@@ -6,16 +6,17 @@ import com.vv.personal.twm.artifactory.generated.deposit.FixedDepositProto;
 import com.vv.personal.twm.calc.core.AmountInterestCalculator;
 import com.vv.personal.twm.calc.core.DaysCalculator;
 import com.vv.personal.twm.calc.remote.controller.dates.DateDataController;
-import io.swagger.v3.oas.annotations.Operation;
+import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.QueryParam;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -27,21 +28,23 @@ import static com.vv.personal.twm.calc.util.LocalDateUtil.generateIntegralDate;
  * @author Vivek
  * @since 03/02/21
  */
-@RestController("BankController")
-@RequestMapping("/calc/bank")
+@Path("/calc/bank")
+@Produces(MediaType.APPLICATION_JSON)
+@Consumes(MediaType.APPLICATION_JSON)
 public class BankController {
     private static final Logger LOGGER = LoggerFactory.getLogger(BankController.class);
 
-    @Autowired
+    @Inject
     private DateDataController dateDataController;
 
-    @GetMapping("/fd/amount-interest")
+    @GET
+    @Path("/fd/amount-interest")
     @Operation(summary = "calc FD amount and interest", hidden = true)
-    public FixedDepositProto.FixedDeposit calcAmountAndInterest(@RequestParam double depositAmount,
-                                                                @RequestParam double rateOfInterest,
-                                                                @RequestParam int months,
-                                                                @RequestParam int days,
-                                                                @RequestParam int accountType) {
+    public FixedDepositProto.FixedDeposit calcAmountAndInterest(@QueryParam("depositAmount") double depositAmount,
+                                                                @QueryParam("rateOfInterest") double rateOfInterest,
+                                                                @QueryParam("months") int months,
+                                                                @QueryParam("days") int days,
+                                                                @QueryParam("accountType") int accountType) {
         FixedDepositProto.AccountType accType = FixedDepositProto.AccountType.forNumber(accountType);
         if (accType == null) {
             LOGGER.warn("Cannot process FD compute request due to unknown account type: {}", accountType);
@@ -55,31 +58,37 @@ public class BankController {
         return fixedDeposit;
     }
 
-    @GetMapping("/manual/fd/amount-interest")
-    public String calcAmountAndInterestForSwagger(@RequestParam double depositAmount,
-                                                  @RequestParam double rateOfInterest,
-                                                  @RequestParam int months,
-                                                  @RequestParam(defaultValue = "0", required = false) int days,
-                                                  @RequestParam(defaultValue = "0", required = false) int accountType) {
+    @GET
+    @Path("/manual/fd/amount-interest")
+    @Produces(MediaType.TEXT_PLAIN)
+    public String calcAmountAndInterestForSwagger(@QueryParam("depositAmount") double depositAmount,
+                                                  @QueryParam("rateOfInterest") double rateOfInterest,
+                                                  @QueryParam("months") int months,
+                                                  @QueryParam("days") int days,
+                                                  @QueryParam("accountType") int accountType) {
         return calcAmountAndInterest(depositAmount, rateOfInterest, months, days, accountType).toString();
     }
 
-    @GetMapping("/fd/end-date")
-    public String calcEndDate(@RequestParam String startDate,
-                              @RequestParam Integer months,
-                              @RequestParam(defaultValue = "0", required = false) Integer days) {
+    @GET
+    @Path("/fd/end-date")
+    @Produces(MediaType.TEXT_PLAIN)
+    public String calcEndDate(@QueryParam("startDate") String startDate,
+                              @QueryParam("months") Integer months,
+                              @QueryParam("days") Integer days) {
+        if (days == null) days = 0;
         LOGGER.info("Will compute end-date for FD with start-date: {}, months: {} & days: {}", startDate, months, days);
         String endDate = DaysCalculator.calcEndDate(startDate, months, days);
         LOGGER.info("Computed end-date: {}", endDate);
         return endDate;
     }
 
-    @GetMapping("/fd/amount-interest/annual")
+    @GET
+    @Path("/fd/amount-interest/annual")
     @Operation(summary = "calc annual FD amount and interest", hidden = true)
-    public FixedDepositProto.AnnualBreakdownList calcAnnualAmountAndInterest(@RequestParam double depositAmount,
-                                                                             @RequestParam double rateOfInterest,
-                                                                             @RequestParam String startDate,
-                                                                             @RequestParam String endDate) {
+    public FixedDepositProto.AnnualBreakdownList calcAnnualAmountAndInterest(@QueryParam("depositAmount") double depositAmount,
+                                                                             @QueryParam("rateOfInterest") double rateOfInterest,
+                                                                             @QueryParam("startDate") String startDate,
+                                                                             @QueryParam("endDate") String endDate) {
         LOGGER.info("Will compute annual amount and interest for FD with principal: {}, ROI: {}%, start-date: {}, end-date: {}", depositAmount, rateOfInterest, startDate, endDate);
         DateRangeProto.DateRangeList dateRangeList = dateDataController.computeDateRanges(startDate, endDate);
 
@@ -106,16 +115,19 @@ public class BankController {
         return annualBreakdownList;
     }
 
-    @GetMapping("/manual/fd/amount-interest/annual")
-    public String calcAnnualAmountAndInterestManually(@RequestParam double depositAmount,
-                                                      @RequestParam double rateOfInterest,
-                                                      @RequestParam String startDate,
-                                                      @RequestParam String endDate) {
+    @GET
+    @Path("/manual/fd/amount-interest/annual")
+    @Produces(MediaType.TEXT_PLAIN)
+    public String calcAnnualAmountAndInterestManually(@QueryParam("depositAmount") double depositAmount,
+                                                      @QueryParam("rateOfInterest") double rateOfInterest,
+                                                      @QueryParam("startDate") String startDate,
+                                                      @QueryParam("endDate") String endDate) {
         return calcAnnualAmountAndInterest(depositAmount, rateOfInterest, startDate, endDate).toString();
     }
 
-    @PostMapping("/fd/amount")
-    public DataPacketProto.DataPacket calcAnnualAmounts(@RequestBody FixedDepositProto.FixedDeposit fixedDeposit) {
+    @POST
+    @Path("/fd/amount")
+    public DataPacketProto.DataPacket calcAnnualAmounts(FixedDepositProto.FixedDeposit fixedDeposit) {
         Map<Integer, Double> dateAmountMap = new HashMap<>();
         calcAmounts(fixedDeposit, dateAmountMap);
         return DataPacketProto.DataPacket.newBuilder()
@@ -123,8 +135,9 @@ public class BankController {
                 .build();
     }
 
-    @PostMapping("/fd/amounts")
-    public DataPacketProto.DataPacket calcAnnualAmounts(@RequestBody FixedDepositProto.FixedDepositList fixedDepositList) {
+    @POST
+    @Path("/fd/amounts")
+    public DataPacketProto.DataPacket calcAnnualAmounts(FixedDepositProto.FixedDepositList fixedDepositList) {
         Map<Integer, Double> dateAmountMap = new HashMap<>();
         fixedDepositList.getFixedDepositList().forEach(fixedDeposit -> calcAmounts(fixedDeposit, dateAmountMap));
         return DataPacketProto.DataPacket.newBuilder()

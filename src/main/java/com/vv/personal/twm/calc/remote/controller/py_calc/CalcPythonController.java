@@ -6,10 +6,12 @@ import com.vv.personal.twm.artifactory.generated.equitiesMarket.MarketDataProto;
 import com.vv.personal.twm.calc.remote.feign.CalcPythonEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.core.MediaType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,16 +21,20 @@ import java.util.Optional;
  * @author Vivek
  * @since 2026-01-16
  */
-@RestController("CalcPythonController")
-@RequestMapping("/calc/engine/py")
+@Path("/calc/engine/py")
+@Produces(MediaType.APPLICATION_JSON)
+@Consumes(MediaType.APPLICATION_JSON)
 public class CalcPythonController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CalcPythonController.class);
 
-    @Autowired
+    @Inject
+    @org.eclipse.microprofile.rest.client.inject.RestClient
     private CalcPythonEngine calcPythonEngine;
 
-    @GetMapping("/test")
+    @GET
+    @Path("/test")
+    @Produces(MediaType.TEXT_PLAIN)
     public String test() {
         double vix = 28.0;
         double maxWeight = .35;

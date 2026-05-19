@@ -1,19 +1,16 @@
 package com.vv.personal.twm.calc.util;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 
 import static com.vv.personal.twm.calc.util.LocalDateUtil.*;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Vivek
  * @since 06/02/21
  */
-@RunWith(JUnit4.class)
 public class LocalDateUtilTest {
 
     @Test

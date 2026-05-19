@@ -1,15 +1,13 @@
 package com.vv.personal.twm.calc;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
+import io.quarkus.test.junit.QuarkusTest;
 
-/*
-@SpringBootTest
+@QuarkusTest
 class TwmCalcServerTests {
 
-	@Test
-	void contextLoads() {
-	}
+    @Test
+    void contextLoads() {
+    }
 
 }
-*/

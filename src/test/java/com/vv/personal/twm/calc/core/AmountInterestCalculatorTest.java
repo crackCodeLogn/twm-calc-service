@@ -1,19 +1,16 @@
 package com.vv.personal.twm.calc.core;
 
 import com.vv.personal.twm.artifactory.generated.deposit.FixedDepositProto;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.junit.jupiter.api.Test;
 
 import static com.vv.personal.twm.calc.constants.Constants.DELTA_PRECISION_6;
 import static com.vv.personal.twm.calc.core.AmountInterestCalculator.calcAmountAndInterest;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Vivek
  * @since 03/02/21
  */
-@RunWith(JUnit4.class)
 public class AmountInterestCalculatorTest {
 
     @Test

@@ -4,13 +4,15 @@ import com.google.protobuf.AbstractMessage;
 import com.vv.personal.twm.artifactory.generated.dates.DateRangeProto;
 import com.vv.personal.twm.calc.core.DateRangeCalculator;
 import com.vv.personal.twm.calc.core.DaysCalculator;
-import io.swagger.v3.oas.annotations.Operation;
+import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.QueryParam;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,14 +21,16 @@ import java.util.stream.Collectors;
  * @author Vivek
  * @since 06/02/21
  */
-@RestController("DateDataController")
-@RequestMapping("/calc/dates")
+@Path("/calc/dates")
+@Produces(MediaType.APPLICATION_JSON)
+@Consumes(MediaType.APPLICATION_JSON)
 public class DateDataController {
     private static final Logger LOGGER = LoggerFactory.getLogger(DateDataController.class);
 
-    @GetMapping("/days-in-between")
-    public Long calculateDaysInBetween(@RequestParam String startDate,
-                                       @RequestParam String endDate) {
+    @GET
+    @Path("/days-in-between")
+    public Long calculateDaysInBetween(@QueryParam("startDate") String startDate,
+                                       @QueryParam("endDate") String endDate) {
         LOGGER.info("Will compute number of days in between {} -> {}", startDate, endDate);
         long numberOfDaysInBetween = DaysCalculator.numberOfDaysInBetween(startDate, endDate);
         LOGGER.info("Calculated numberOfDaysInBetween: {}", numberOfDaysInBetween);
@@ -34,9 +38,10 @@ public class DateDataController {
     }
 
     @Operation(summary = "compute dateRange between start and end date", hidden = true)
-    @GetMapping("/dateRanges-in-between")
-    public DateRangeProto.DateRangeList computeDateRanges(@RequestParam String startDate,
-                                                          @RequestParam String endDate) {
+    @GET
+    @Path("/dateRanges-in-between")
+    public DateRangeProto.DateRangeList computeDateRanges(@QueryParam("startDate") String startDate,
+                                                          @QueryParam("endDate") String endDate) {
         LOGGER.info("Will compute date range of days in between {} -> {}", startDate, endDate);
         DateRangeProto.DateRangeList dateRangeList = DateRangeCalculator.computeDateRanges(startDate, endDate);
         if (dateRangeList == null) {
@@ -47,9 +52,10 @@ public class DateDataController {
         return dateRangeList;
     }
 
-    @GetMapping("/manual/dateRanges-in-between")
-    public List<String> computeDateRangesManually(@RequestParam String startDate,
-                                                  @RequestParam String endDate) {
+    @GET
+    @Path("/manual/dateRanges-in-between")
+    public List<String> computeDateRangesManually(@QueryParam("startDate") String startDate,
+                                                  @QueryParam("endDate") String endDate) {
         return computeDateRanges(startDate, endDate).getDateRangesList()
                 .stream().map(AbstractMessage::toString)
                 .collect(Collectors.toList());

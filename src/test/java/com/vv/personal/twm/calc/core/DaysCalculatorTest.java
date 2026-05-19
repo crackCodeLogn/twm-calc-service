@@ -1,18 +1,15 @@
 package com.vv.personal.twm.calc.core;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.junit.jupiter.api.Test;
 
 import static com.vv.personal.twm.calc.core.DaysCalculator.calcEndDate;
 import static com.vv.personal.twm.calc.core.DaysCalculator.numberOfDaysInBetween;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Vivek
  * @since 03/02/21
  */
-@RunWith(JUnit4.class)
 public class DaysCalculatorTest {
 
     @Test
